@@ -75,6 +75,39 @@
   .title-pill small { font-family:'Inter'; font-weight:400; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); }
   .spacer { flex:1; }
 
+  /* ---------- Layers panel ---------- */
+  .layers-panel {
+    position:absolute; top:72px; right:16px; z-index:6;
+    background:var(--panel); border-radius:14px;
+    box-shadow:0 4px 24px rgba(0,0,0,.28);
+    padding:5px; min-width:165px; display:none;
+  }
+  .layers-panel.open { display:block; }
+  .layer-row {
+    width:100%; display:flex; align-items:center; gap:10px;
+    padding:10px 12px; border:none; background:transparent;
+    color:var(--ink); font-family:'Inter',sans-serif;
+    font-size:13.5px; font-weight:500;
+    border-radius:10px; cursor:pointer; transition:background .12s;
+    text-align:left;
+  }
+  .layer-row:hover { background:var(--panel-2); }
+  .layer-ico { font-size:16px; color:var(--ink-soft); width:18px; flex-shrink:0; }
+  .layer-label { flex:1; }
+  .lr-pip {
+    width:30px; height:17px; border-radius:8.5px;
+    background:var(--line); flex-shrink:0; position:relative;
+    transition:background .2s;
+  }
+  .lr-pip::after {
+    content:''; position:absolute; top:2.5px; left:2.5px;
+    width:12px; height:12px; border-radius:50%;
+    background:white; transition:transform .2s;
+  }
+  .layer-row.on .lr-pip { background:var(--accent); }
+  .layer-row.on .lr-pip::after { transform:translateX(13px); }
+  .lr-sep { height:1px; background:var(--line); margin:2px 8px; }
+
   /* ---------- Side panel ---------- */
   .panel {
     position:absolute; top:0; left:0; bottom:0; z-index:10;
@@ -162,6 +195,15 @@
   .mk.home::after { width:14px; height:12px; }
   .mk.starred { box-shadow:0 0 0 3px #d8a93c, 0 3px 9px rgba(0,0,0,.35); }
 
+  /* Transit station dots */
+  .mk-stop {
+    width:13px; height:13px; border-radius:50%;
+    border:2px solid rgba(255,255,255,.9);
+    box-shadow:0 2px 6px rgba(0,0,0,.35);
+    cursor:pointer; transition:scale .15s; will-change:transform;
+  }
+  .mk-stop:hover { scale:1.25; }
+
   .legend-note { position:absolute; bottom:16px; left:50%; transform:translateX(-50%); z-index:4;
     background:var(--panel); color:var(--ink-soft); font-size:11px; padding:7px 14px; border-radius:20px;
     box-shadow:0 2px 10px rgba(0,0,0,.2); white-space:nowrap; opacity:.95; }
@@ -186,10 +228,24 @@
   <button class="menu-btn" id="menuBtn" aria-label="Open places list"><i class="icon-menu"></i></button>
   <div class="title-pill">Chicago<small>July 16–18</small></div>
   <div class="spacer"></div>
-  <button class="toggle-btn" id="zonesBtn" aria-label="Toggle zones view"><i class="icon-layers"></i></button>
+  <button class="toggle-btn" id="layersBtn" aria-label="Toggle map layers"><i class="icon-layers"></i></button>
   <button class="toggle-btn" id="resetBtn" aria-label="Recenter map"><i class="icon-rotate-ccw"></i></button>
   <button class="locate-btn" id="locateBtn" aria-label="Find my location"><i class="icon-locate-fixed"></i></button>
   <button class="toggle-btn" id="themeBtn" aria-label="Toggle day or night"><i class="icon-sun"></i></button>
+</div>
+
+<div class="layers-panel" id="layersPanel">
+  <button class="layer-row" id="zoneToggle">
+    <i class="icon-map layer-ico"></i>
+    <span class="layer-label">Zones</span>
+    <span class="lr-pip"></span>
+  </button>
+  <div class="lr-sep"></div>
+  <button class="layer-row" id="transitToggle">
+    <i class="icon-train-front layer-ico"></i>
+    <span class="layer-label">Transit</span>
+    <span class="lr-pip"></span>
+  </button>
 </div>
 
 <aside class="panel" id="panel">
@@ -204,13 +260,34 @@
   <div class="list" id="list"></div>
 </aside>
 
-<div class="legend-note" id="legendNote">Tap a pin for details, hours & directions</div>
+<div class="legend-note" id="legendNote">Tap a pin for details, hours &amp; directions</div>
 
 <script>
 const MAPBOX_TOKEN = 'pk.eyJ1IjoibmF0aGFubWlyYW5kYSIsImEiOiJjbXFyZ2RteGcwcXh5Mnlvam44ZTFtNWY4In0.T15pzkuzL4bAEAnIRI9TCQ';
 mapboxgl.accessToken = MAPBOX_TOKEN;
 
+const CTA_LINES = {
+  Red:    {color:'#c60c30', summary:'The north-south 24/7 spine — Chinatown, the Loop, River North, Wrigleyville.'},
+  Blue:   {color:'#00a1de', summary:'O\'Hare to downtown, runs 24/7 — the airport connection. Serves Wicker Park via Damen/Division.'},
+  Green:  {color:'#009b3a', summary:'West/south side into the Loop — connects outer neighborhoods eastward.'},
+  Orange: {color:'#f9461c', summary:'Midway airport to the Loop.'},
+  Brown:  {color:'#62361b', summary:'Loop up through north-side neighborhoods — Merchandise Mart is one stop from River North.'},
+  Pink:   {color:'#e27ea6', summary:'West side into the Loop, sharing elevated Loop tracks with Green and Orange.'},
+};
+
+/* Curated 22 stations — MAP_IDs from CTA data */
+const TRANSIT_WHITELIST = new Set([
+  '40330','41450','40630','40650','41420','41660','40560','41400','41000', // Red
+  '41410','40490','40320','40590','41020',                                  // Blue
+  '40460','40800','40660','41220','41440',                                  // Brown
+  '40380','40260','40040',                                                   // Loop: Clark/Lake, State/Lake, Quincy/Wells
+]);
+
 let DATA = null, map = null, markers = [], activeCats = new Set(), userMarker = null;
+let zonesMode = false, zonePopup = null;
+let transitMode = false, transitMarkers = [], transitStopsLoaded = false, transitLinePopup = null;
+let layersPanelOpen = false;
+let ctaLinesCache = null, ctaStopsCache = null;
 
 const ICONS = {
   home:'icon-home', landmark:'icon-landmark',
@@ -247,7 +324,6 @@ function styleFor(night){
     : 'mapbox://styles/mapbox/light-v11';
 }
 
-/* desert + wasteland paint applied on top of base style */
 function paintTheme(night){
   const layers = map.getStyle().layers;
   const set = (id,prop,val)=>{ if(map.getLayer(id)){ try{ map.setPaintProperty(id,prop,val);}catch(e){} } };
@@ -269,8 +345,6 @@ function paintTheme(night){
     });
   }
 }
-
-function milesToPx(){ return null; }
 
 function fitToRadius(){
   const {lat,lng}=DATA.config.homebase, r=DATA.config.radiusMiles;
@@ -374,7 +448,7 @@ function buildList(){
   document.getElementById('count').textContent=`${total} places · ${DATA.config.radiusMiles}-mile radius`;
 }
 
-/* live location */
+/* ---------- Live location ---------- */
 function locate(){
   if(!navigator.geolocation){ alert('Location not supported on this browser.'); return; }
   navigator.geolocation.getCurrentPosition(pos=>{
@@ -391,9 +465,7 @@ function locate(){
   },()=>alert('Could not get your location. Check browser permissions.'),{enableHighAccuracy:true});
 }
 
-/* zones mode */
-let zonesMode=false, zonePopup=null;
-
+/* ---------- Zones layer (additive — PoI pins stay visible) ---------- */
 function makeCirclePolygon(lng,lat,radiusKm){
   const steps=64, coords=[];
   for(let i=0;i<=steps;i++){
@@ -415,10 +487,12 @@ function addZoneLayers(){
     geometry:makeCirclePolygon(z.lng,z.lat,z.radius||0.5)
   }))};
   map.addSource('zones-src',{type:'geojson',data:geojson});
+  /* Insert below transit lines if transit is already on */
+  const beforeId=map.getLayer('transit-red-line')?'transit-red-line':undefined;
   map.addLayer({id:'zones-fill',type:'fill',source:'zones-src',
-    paint:{'fill-color':'#7B9E9E','fill-opacity':0.15}});
+    paint:{'fill-color':'#7B9E9E','fill-opacity':0.15}},beforeId);
   map.addLayer({id:'zones-line',type:'line',source:'zones-src',
-    paint:{'line-color':'#7B9E9E','line-width':2,'line-opacity':0.6}});
+    paint:{'line-color':'#7B9E9E','line-width':2,'line-opacity':0.6}},beforeId);
   map.on('click','zones-fill',onZoneClick);
   map.on('mouseenter','zones-fill',()=>{map.getCanvas().style.cursor='pointer';});
   map.on('mouseleave','zones-fill',()=>{map.getCanvas().style.cursor='';});
@@ -441,7 +515,7 @@ function onZoneClick(e){
     .setHTML(`
       <div class="pop-band" style="background:#7B9E9E"></div>
       <div class="pop-body">
-        <div class="pop-cat"><span class="ci" style="background:#7B9E9E"><i class="icon-layers"></i></span>Zone</div>
+        <div class="pop-cat"><span class="ci" style="background:#7B9E9E"><i class="icon-map"></i></span>Zone</div>
         <div class="pop-name">${name}</div>
         ${address?`<div class="pop-addr">${address}</div>`:''}
         <div class="pop-note">${note}</div>
@@ -455,39 +529,225 @@ function onZoneClick(e){
 
 function toggleZonesMode(){
   zonesMode=!zonesMode;
-  document.getElementById('zonesBtn').classList.toggle('on',zonesMode);
+  document.getElementById('zoneToggle').classList.toggle('on',zonesMode);
   if(zonesMode){
-    markers.forEach(m=>{m.el.style.display='none';});
     addZoneLayers();
   } else {
     if(zonePopup){zonePopup.remove();zonePopup=null;}
     removeZoneLayers();
-    markers.forEach(m=>{m.el.style.display=activeCats.has(m.cat)?'':'none';});
   }
 }
 
-/* theme */
+/* ---------- Transit layer ---------- */
+async function getCtaLines(){
+  if(!ctaLinesCache) ctaLinesCache=await (await fetch('cta_lines.geojson')).json();
+  return ctaLinesCache;
+}
+
+async function getCtaStops(){
+  if(!ctaStopsCache) ctaStopsCache=await (await fetch('cta_stops.csv')).text();
+  return ctaStopsCache;
+}
+
+function parseCSVLine(line){
+  const cols=[]; let cur='', inQ=false;
+  for(const ch of line){
+    if(ch==='"'){ inQ=!inQ; }
+    else if(ch===',' && !inQ){ cols.push(cur); cur=''; }
+    else { cur+=ch; }
+  }
+  cols.push(cur);
+  return cols;
+}
+
+async function addTransitGL(){
+  if(map.getSource('transit-lines-src')) return;
+  const geojson=await getCtaLines();
+
+  /* Pre-process: add a boolean property per line so Mapbox filters can use them */
+  geojson.features.forEach(f=>{
+    const parts=(f.properties.lines||'').split(', ');
+    Object.keys(CTA_LINES).forEach(name=>{
+      f.properties['has'+name]=parts.some(p=>p.startsWith(name));
+    });
+  });
+
+  map.addSource('transit-lines-src',{type:'geojson',data:geojson});
+
+  Object.keys(CTA_LINES).forEach(name=>{
+    const id=name.toLowerCase();
+    const col=CTA_LINES[name].color;
+    const filter=['==',['get','has'+name],true];
+    /* Wide invisible tap target for easy mobile tapping */
+    map.addLayer({id:`transit-${id}-tap`,type:'line',source:'transit-lines-src',filter,
+      paint:{'line-color':'rgba(0,0,0,0)','line-width':20}});
+    /* Visible colored line */
+    map.addLayer({id:`transit-${id}-line`,type:'line',source:'transit-lines-src',filter,
+      paint:{'line-color':col,'line-width':3,'line-opacity':0.75,'line-join':'round','line-cap':'round'}});
+    map.on('click',`transit-${id}-tap`,e=>onTransitLineClick(e,name));
+    map.on('mouseenter',`transit-${id}-tap`,()=>{map.getCanvas().style.cursor='pointer';});
+    map.on('mouseleave',`transit-${id}-tap`,()=>{map.getCanvas().style.cursor='';});
+  });
+}
+
+const LINE_PRIORITY=['Red','Blue','Green','Orange','Brown','Pink'];
+
+async function addTransitMarkers(){
+  if(transitStopsLoaded) return;
+  transitStopsLoaded=true;
+  const text=await getCtaStops();
+  const rows=text.split('\n');
+  const header=parseCSVLine(rows[0]);
+  const COL={};
+  header.forEach((h,i)=>{ COL[h]=i; });
+  const LINE_COLS={RED:'Red',BLUE:'Blue',G:'Green',BRN:'Brown',Pnk:'Pink',O:'Orange'};
+  const seen=new Set();
+
+  rows.slice(1).forEach(row=>{
+    if(!row.trim()) return;
+    const cols=parseCSVLine(row);
+    const mapId=cols[COL['MAP_ID']];
+    if(!TRANSIT_WHITELIST.has(mapId)||seen.has(mapId)) return;
+    seen.add(mapId);
+
+    const served=Object.entries(LINE_COLS)
+      .filter(([col])=>cols[COL[col]]==='true')
+      .map(([,name])=>name);
+    if(!served.length) return;
+
+    const locM=(cols[COL['Location']]||'').match(/\(([0-9.-]+),\s*([0-9.-]+)\)/);
+    if(!locM) return;
+    const lat=parseFloat(locM[1]),lng=parseFloat(locM[2]);
+    const name=cols[COL['STATION_NAME']];
+    addTransitStopMarker(name,lat,lng,served);
+  });
+}
+
+function addTransitStopMarker(name,lat,lng,served){
+  const primary=LINE_PRIORITY.find(l=>served.includes(l))||served[0];
+  const col=CTA_LINES[primary].color;
+
+  const outer=document.createElement('div');
+  const inner=document.createElement('div');
+  inner.className='mk-stop';
+  inner.style.background=col;
+  outer.appendChild(inner);
+
+  const lineSwatches=served.map(l=>
+    `<span style="display:inline-flex;align-items:center;gap:4px;margin-right:8px">` +
+    `<span style="width:10px;height:10px;border-radius:2px;background:${CTA_LINES[l].color};display:inline-block;flex-shrink:0"></span>${l}` +
+    `</span>`
+  ).join('');
+
+  const q=encodeURIComponent(name+' CTA Station Chicago');
+  const apple=`https://maps.apple.com/?q=${q}&ll=${lat},${lng}`;
+  const google=`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+
+  const popup=new mapboxgl.Popup({offset:14,closeButton:true,maxWidth:'280px'})
+    .setHTML(`
+      <div class="pop-band" style="background:${col}"></div>
+      <div class="pop-body">
+        <div class="pop-cat"><span class="ci" style="background:${col}"><i class="icon-train-front"></i></span>CTA Station</div>
+        <div class="pop-name">${name}</div>
+        <div class="pop-note" style="display:flex;flex-wrap:wrap;margin-bottom:12px">${lineSwatches}</div>
+        <div class="pop-btns">
+          <a class="primary" href="${apple}" target="_blank" rel="noopener"><i class="icon-apple" style="font-size:13px"></i>Apple Maps</a>
+          <a href="${google}" target="_blank" rel="noopener"><i class="icon-navigation" style="font-size:13px"></i>Google Maps</a>
+        </div>
+      </div>`);
+
+  inner.addEventListener('click',()=>{ map.flyTo({center:[lng,lat],zoom:14.5,speed:.8}); });
+
+  const marker=new mapboxgl.Marker({element:outer,anchor:'center'})
+    .setLngLat([lng,lat])
+    .setPopup(popup)
+    .addTo(map);
+  transitMarkers.push(marker);
+}
+
+function onTransitLineClick(e,lineName){
+  if(transitLinePopup) transitLinePopup.remove();
+  const {color,summary}=CTA_LINES[lineName];
+  transitLinePopup=new mapboxgl.Popup({closeButton:true,maxWidth:'280px'})
+    .setLngLat(e.lngLat)
+    .setHTML(`
+      <div class="pop-band" style="background:${color}"></div>
+      <div class="pop-body">
+        <div class="pop-cat"><span class="ci" style="background:${color}"><i class="icon-train-front"></i></span>CTA Rail Line</div>
+        <div class="pop-name">${lineName} Line</div>
+        <div class="pop-note">${summary}</div>
+      </div>`)
+    .addTo(map);
+}
+
+async function addTransitLayers(){
+  await addTransitGL();
+  await addTransitMarkers();
+}
+
+function removeTransitLayers(){
+  Object.keys(CTA_LINES).forEach(name=>{
+    const id=name.toLowerCase();
+    if(map.getLayer(`transit-${id}-tap`)) map.removeLayer(`transit-${id}-tap`);
+    if(map.getLayer(`transit-${id}-line`)) map.removeLayer(`transit-${id}-line`);
+  });
+  if(map.getSource('transit-lines-src')) map.removeSource('transit-lines-src');
+  transitMarkers.forEach(m=>m.remove());
+  transitMarkers=[];
+  transitStopsLoaded=false;
+  if(transitLinePopup){transitLinePopup.remove();transitLinePopup=null;}
+}
+
+async function toggleTransitMode(){
+  transitMode=!transitMode;
+  document.getElementById('transitToggle').classList.toggle('on',transitMode);
+  if(transitMode){ await addTransitLayers(); }
+  else { removeTransitLayers(); }
+}
+
+/* ---------- Layers panel ---------- */
+function toggleLayersPanel(){
+  layersPanelOpen=!layersPanelOpen;
+  document.getElementById('layersPanel').classList.toggle('open',layersPanelOpen);
+  document.getElementById('layersBtn').classList.toggle('on',layersPanelOpen);
+}
+
+/* ---------- Theme ---------- */
 let night=true;
 document.body.classList.add('night');
+
 function setTheme(n){
   night=n; document.body.classList.toggle('night',n);
   document.getElementById('themeBtn').innerHTML=`<i class="${n?'icon-sun':'icon-moon'}"></i>`;
-  const apply=()=>paintTheme(n);
   map.setStyle(styleFor(n));
-  map.once('style.load',()=>{ apply(); if(zonesMode) addZoneLayers(); });
+  map.once('style.load',()=>{
+    paintTheme(n);
+    if(zonesMode) addZoneLayers();
+    if(transitMode) addTransitGL();
+  });
 }
 
-/* panel */
+/* ---------- Panel ---------- */
 function openPanel(){ document.getElementById('panel').classList.add('open'); }
 function closePanel(){ document.getElementById('panel').classList.remove('open'); }
 
+/* ---------- Event listeners ---------- */
 document.getElementById('menuBtn').addEventListener('click',openPanel);
 document.getElementById('closeBtn').addEventListener('click',closePanel);
 document.getElementById('themeBtn').addEventListener('click',()=>setTheme(!night));
-document.getElementById('zonesBtn').addEventListener('click',toggleZonesMode);
+document.getElementById('layersBtn').addEventListener('click',toggleLayersPanel);
+document.getElementById('zoneToggle').addEventListener('click',toggleZonesMode);
+document.getElementById('transitToggle').addEventListener('click',toggleTransitMode);
 document.getElementById('resetBtn').addEventListener('click',()=>fitToRadius());
 document.getElementById('locateBtn').addEventListener('click',locate);
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closePanel(); });
+document.addEventListener('click',e=>{
+  if(layersPanelOpen && !e.target.closest('#layersPanel') && !e.target.closest('#layersBtn')){
+    layersPanelOpen=false;
+    document.getElementById('layersPanel').classList.remove('open');
+    document.getElementById('layersBtn').classList.remove('on');
+  }
+});
 
 boot();
 </script>
