@@ -148,13 +148,18 @@
   .pop-btns a:active { transform:scale(.97); }
 
   /* ---------- Markers ---------- */
-  .mk { width:26px; height:26px; border-radius:50% 50% 50% 2px; transform:rotate(45deg);
+  .mk { width:26px; height:26px; border-radius:50%;
         border:2px solid rgba(255,255,255,.85); box-shadow:0 3px 8px rgba(0,0,0,.3);
-        display:flex; align-items:center; justify-content:center; cursor:pointer; }
-  .mk i { transform:rotate(-45deg); color:#fff; font-size:13px; }
-  .mk:hover { transform:rotate(45deg) scale(1.14); transition:transform .15s; }
+        display:flex; align-items:center; justify-content:center; cursor:pointer;
+        position:relative; will-change:transform; transition:scale .15s; }
+  .mk::after { content:''; position:absolute; top:calc(100% - 2px); left:50%;
+               transform:translateX(-50%); width:10px; height:10px;
+               background:inherit; clip-path:polygon(0 0,100% 0,50% 100%); }
+  .mk i { color:#fff; font-size:13px; }
+  .mk:hover { scale:1.14; }
   .mk.home { width:40px; height:40px; border-width:3px; z-index:3; }
   .mk.home i { font-size:19px; }
+  .mk.home::after { width:14px; height:12px; }
   .mk.starred { box-shadow:0 0 0 3px #d8a93c, 0 3px 9px rgba(0,0,0,.35); }
 
   .legend-note { position:absolute; bottom:16px; left:50%; transform:translateX(-50%); z-index:4;
@@ -284,7 +289,7 @@ function addMarkers(){
     inner.style.background=cat.color;
     inner.innerHTML=`<i class="${ICONS[cat.icon]}"></i>`;
     outer.appendChild(inner);
-    const marker=new mapboxgl.Marker({element:outer,anchor:'bottom'})
+    const marker=new mapboxgl.Marker({element:outer,anchor:'bottom',offset:[0,loc.cat==='homebase'?-12:-10]})
       .setLngLat([loc.lng,loc.lat])
       .setPopup(makePopup(loc,cat))
       .addTo(map);
