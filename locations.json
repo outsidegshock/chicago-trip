@@ -9,8 +9,7 @@
     "food":       { "label": "Food & Drink",    "color": "#7BA67B", "icon": "utensils" },
     "nightlife":  { "label": "Nightlife",       "color": "#8B7BAB", "icon": "music" },
     "stadiums":   { "label": "Stadiums",        "color": "#5B9E8E", "icon": "trophy" },
-    "transit":    { "label": "Transit",         "color": "#9E8E6B", "icon": "train" },
-    "zones":      { "label": "Zones",           "color": "#7B9E6B", "icon": "map" }
+    "transit":    { "label": "Transit",         "color": "#9E8E6B", "icon": "train" }
   },
   "locations": [
     { "name": "Hotel EMC2", "cat": "homebase", "lat": 41.8935883, "lng": -87.6215303, "star": false, "note": "Home base. Art-and-science boutique hotel in Streeterville, steps from the Mag Mile and Navy Pier.", "address": "228 E Ontario St" },
@@ -27,16 +26,16 @@
     { "name": "Lincoln Park Zoo", "cat": "attractions", "lat": 41.9211, "lng": -87.6339, "star": false, "note": "Free zoo in Lincoln Park. 8am-5pm (later in summer). Easy to combine with the conservatory.", "address": "2001 N Clark St" },
     { "name": "Lincoln Park Conservatory", "cat": "attractions", "lat": 41.9244, "lng": -87.6358, "star": false, "note": "Free Victorian glass-house conservatory. Wed-Sun 10am-4:30pm.", "address": "2391 N Stockton Dr" },
     { "name": "Art Institute of Chicago", "cat": "attractions", "lat": 41.8796, "lng": -87.6237, "star": false, "note": "World-class art museum. Closed Tuesdays. Allow 2-3 hours.", "address": "111 S Michigan Ave" },
-    { "name": "Magnificent Mile", "cat": "zones", "lat": 41.8945, "lng": -87.6244, "star": false, "note": "Michigan Ave shopping corridor — flagship stores, hotels, restaurants.", "address": "N Michigan Ave" },
+    { "name": "Magnificent Mile", "cat": "zones", "lat": 41.8945, "lng": -87.6244, "star": false, "radius": 0.5, "note": "Michigan Ave shopping corridor — flagship stores, hotels, restaurants.", "address": "N Michigan Ave" },
     { "name": "Shedd Aquarium", "cat": "attractions", "lat": 41.8676, "lng": -87.6140, "star": false, "note": "On the Museum Campus next to the Field Museum. ~$50. Book ahead in summer.", "address": "1200 S DuSable Lake Shore Dr" },
     { "name": "University of Chicago", "cat": "attractions", "lat": 41.7886, "lng": -87.5987, "star": false, "note": "Gothic campus on the South Side, near the Obama Center. Good for a walk-around.", "address": "5801 S Ellis Ave" },
     { "name": "North Avenue Beach", "cat": "attractions", "lat": 41.9111, "lng": -87.6270, "star": false, "note": "Lakefront beach with a boathouse bar. Volleyball, skyline views.", "address": "1601 N Lake Shore Dr" },
-    { "name": "Wicker Park", "cat": "zones", "lat": 41.9088, "lng": -87.6776, "star": false, "note": "Hip neighborhood — vintage shops, bars, music venues, cafes.", "address": "Wicker Park" },
+    { "name": "Wicker Park", "cat": "zones", "lat": 41.9088, "lng": -87.6776, "star": false, "radius": 0.7, "note": "Hip neighborhood — vintage shops, bars, music venues, cafes.", "address": "Wicker Park" },
     { "name": "Garfield Park Conservatory", "cat": "attractions", "lat": 41.8862, "lng": -87.7172, "star": false, "note": "One of the largest conservatories in the US. 4.8 stars. ~$10 for visitors.", "address": "300 N Central Park Ave" },
     { "name": "The Chicago Theatre", "cat": "attractions", "lat": 41.8852970, "lng": -87.6277530, "star": false, "note": "Iconic 1921 landmark marquee. Concerts, comedy, live shows. Check what's on for your dates.", "address": "175 N State St" },
-    { "name": "Gold Coast", "cat": "zones", "lat": 41.9050, "lng": -87.6280, "star": false, "note": "Upscale neighborhood — boutiques, Rush Street nightlife, historic mansions.", "address": "Gold Coast" },
-    { "name": "Fulton Market District", "cat": "zones", "lat": 41.8868, "lng": -87.6522, "star": false, "note": "Former meatpacking district, now Chicago's hottest dining and nightlife strip.", "address": "Fulton Market District" },
-    { "name": "Chinatown Square Plaza", "cat": "zones", "lat": 41.8534, "lng": -87.6320, "star": true, "note": "Two-level outdoor mall — the heart of Chinatown. Restaurants, bubble tea, bakeries.", "address": "2100 S Wentworth Ave" },
+    { "name": "Gold Coast", "cat": "zones", "lat": 41.9050, "lng": -87.6280, "star": false, "radius": 0.65, "note": "Upscale neighborhood — boutiques, Rush Street nightlife, historic mansions.", "address": "Gold Coast" },
+    { "name": "Fulton Market District", "cat": "zones", "lat": 41.8868, "lng": -87.6522, "star": false, "radius": 0.55, "note": "Former meatpacking district, now Chicago's hottest dining and nightlife strip.", "address": "Fulton Market District" },
+    { "name": "Chinatown", "cat": "zones", "lat": 41.8534, "lng": -87.6320, "star": false, "radius": 0.5, "note": "Authentic Chinatown anchored by Wentworth Ave. Restaurants, bubble tea, bakeries, and the two-level Chinatown Square Plaza mall.", "address": "Chinatown, Chicago" },
 
     { "name": "Pizzeria Uno", "cat": "food", "lat": 41.8922, "lng": -87.6266, "star": false, "note": "The original birthplace of Chicago deep dish (1943). Near home base.", "address": "29 E Ohio St" },
     { "name": "Lou Malnati's (River North)", "cat": "food", "lat": 41.8901, "lng": -87.6340, "star": false, "note": "Legendary buttercrust deep dish. A local favorite.", "address": "439 N Wells St" },

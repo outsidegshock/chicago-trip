@@ -64,6 +64,7 @@
     transition:background .2s, transform .1s;
   }
   .menu-btn:active, .toggle-btn:active, .locate-btn:active { transform:scale(.94); }
+  .toggle-btn.on { background:var(--accent); color:#fff; }
   .title-pill {
     background:var(--panel); border-radius:12px; padding:8px 16px;
     box-shadow:0 2px 10px rgba(0,0,0,.18);
@@ -180,6 +181,7 @@
   <button class="menu-btn" id="menuBtn" aria-label="Open places list"><i class="icon-menu"></i></button>
   <div class="title-pill">Chicago<small>July 16–18</small></div>
   <div class="spacer"></div>
+  <button class="toggle-btn" id="zonesBtn" aria-label="Toggle zones view"><i class="icon-layers"></i></button>
   <button class="toggle-btn" id="resetBtn" aria-label="Recenter map"><i class="icon-rotate-ccw"></i></button>
   <button class="locate-btn" id="locateBtn" aria-label="Find my location"><i class="icon-locate-fixed"></i></button>
   <button class="toggle-btn" id="themeBtn" aria-label="Toggle day or night"><i class="icon-sun"></i></button>
@@ -208,7 +210,7 @@ let DATA = null, map = null, markers = [], activeCats = new Set(), userMarker = 
 const ICONS = {
   home:'icon-home', landmark:'icon-landmark',
   utensils:'icon-utensils', music:'icon-music', trophy:'icon-trophy',
-  train:'icon-train-front', map:'icon-map'
+  train:'icon-train-front'
 };
 
 async function boot(){
@@ -273,8 +275,9 @@ function fitToRadius(){
 
 function addMarkers(){
   markers.forEach(m=>m.marker.remove()); markers=[];
-  DATA.locations.forEach(loc=>{
+  DATA.locations.filter(l=>l.cat!=='zones').forEach(loc=>{
     const cat=DATA.categories[loc.cat];
+    if(!cat) return;
     const outer=document.createElement('div');
     const inner=document.createElement('div');
     inner.className='mk'+(loc.cat==='homebase'?' home':'')+(loc.star?' starred':'');
@@ -383,6 +386,74 @@ function locate(){
   },()=>alert('Could not get your location. Check browser permissions.'),{enableHighAccuracy:true});
 }
 
+/* zones mode */
+let zonesMode=false, zonePopup=null;
+
+function makeCirclePolygon(lng,lat,radiusKm){
+  const steps=64, coords=[];
+  for(let i=0;i<=steps;i++){
+    const a=(i/steps)*2*Math.PI;
+    coords.push([
+      lng+(radiusKm/111.32/Math.cos(lat*Math.PI/180))*Math.sin(a),
+      lat+(radiusKm/110.574)*Math.cos(a)
+    ]);
+  }
+  return {type:'Polygon',coordinates:[coords]};
+}
+
+function addZoneLayers(){
+  if(map.getSource('zones-src')) return;
+  const zones=DATA.locations.filter(l=>l.cat==='zones');
+  const geojson={type:'FeatureCollection',features:zones.map(z=>({
+    type:'Feature',
+    properties:{name:z.name,note:z.note||'',address:z.address||''},
+    geometry:makeCirclePolygon(z.lng,z.lat,z.radius||0.5)
+  }))};
+  map.addSource('zones-src',{type:'geojson',data:geojson});
+  map.addLayer({id:'zones-fill',type:'fill',source:'zones-src',
+    paint:{'fill-color':'#7B9E9E','fill-opacity':0.15}});
+  map.addLayer({id:'zones-line',type:'line',source:'zones-src',
+    paint:{'line-color':'#7B9E9E','line-width':2,'line-opacity':0.6}});
+  map.on('click','zones-fill',onZoneClick);
+  map.on('mouseenter','zones-fill',()=>{map.getCanvas().style.cursor='pointer';});
+  map.on('mouseleave','zones-fill',()=>{map.getCanvas().style.cursor='';});
+}
+
+function removeZoneLayers(){
+  if(map.getLayer('zones-fill')) map.removeLayer('zones-fill');
+  if(map.getLayer('zones-line')) map.removeLayer('zones-line');
+  if(map.getSource('zones-src')) map.removeSource('zones-src');
+}
+
+function onZoneClick(e){
+  if(zonePopup) zonePopup.remove();
+  const {name,note,address}=e.features[0].properties;
+  zonePopup=new mapboxgl.Popup({closeButton:true,maxWidth:'300px'})
+    .setLngLat(e.lngLat)
+    .setHTML(`
+      <div class="pop-band" style="background:#7B9E9E"></div>
+      <div class="pop-body">
+        <div class="pop-cat"><span class="ci" style="background:#7B9E9E"><i class="icon-layers"></i></span>Neighborhood</div>
+        <div class="pop-name">${name}</div>
+        ${address?`<div class="pop-addr">${address}</div>`:''}
+        <div class="pop-note">${note}</div>
+      </div>`)
+    .addTo(map);
+}
+
+function toggleZonesMode(){
+  zonesMode=!zonesMode;
+  document.getElementById('zonesBtn').classList.toggle('on',zonesMode);
+  if(zonesMode){
+    markers.forEach(m=>{m.el.style.display='none';});
+    addZoneLayers();
+  } else {
+    if(zonePopup){zonePopup.remove();zonePopup=null;}
+    removeZoneLayers();
+    markers.forEach(m=>{m.el.style.display=activeCats.has(m.cat)?'':'none';});
+  }
+}
+
 /* theme */
 let night=true;
 document.body.classList.add('night');
@@ -391,7 +462,7 @@ function setTheme(n){
   document.getElementById('themeBtn').innerHTML=`<i class="${n?'icon-sun':'icon-moon'}"></i>`;
   const apply=()=>paintTheme(n);
   map.setStyle(styleFor(n));
-  map.once('style.load',()=>{ apply(); });
+  map.once('style.load',()=>{ apply(); if(zonesMode) addZoneLayers(); });
 }
 
 /* panel */
@@ -401,6 +472,7 @@ function closePanel(){ document.getElementById('panel').classList.remove('open')
 document.getElementById('menuBtn').addEventListener('click',openPanel);
 document.getElementById('closeBtn').addEventListener('click',closePanel);
 document.getElementById('themeBtn').addEventListener('click',()=>setTheme(!night));
+document.getElementById('zonesBtn').addEventListener('click',toggleZonesMode);
 document.getElementById('resetBtn').addEventListener('click',()=>fitToRadius());
 document.getElementById('locateBtn').addEventListener('click',locate);
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closePanel(); });
