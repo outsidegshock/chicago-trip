@@ -149,10 +149,9 @@
   /* ---------- Markers ---------- */
   .mk { width:26px; height:26px; border-radius:50% 50% 50% 2px; transform:rotate(45deg);
         border:2px solid rgba(255,255,255,.85); box-shadow:0 3px 8px rgba(0,0,0,.3);
-        display:flex; align-items:center; justify-content:center; cursor:pointer;
-        will-change:transform; transition:scale .15s; }
+        display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform .15s; }
   .mk i { transform:rotate(-45deg); color:#fff; font-size:13px; }
-  .mk:hover { scale:1.14; }
+  .mk:hover { transform:rotate(45deg) scale(1.14); }
   .mk.home { width:40px; height:40px; border-width:3px; z-index:3; }
   .mk.home i { font-size:19px; }
   .mk.starred { box-shadow:0 0 0 3px #d8a93c, 0 3px 9px rgba(0,0,0,.35); }
@@ -272,7 +271,7 @@ function addMarkers(){
     el.className='mk'+(loc.cat==='homebase'?' home':'')+(loc.star?' starred':'');
     el.style.background=cat.color;
     el.innerHTML=`<i class="${ICONS[cat.icon]}"></i>`;
-    const marker=new mapboxgl.Marker({element:el,anchor:'bottom',pitchAlignment:'viewport',rotationAlignment:'viewport'})
+    const marker=new mapboxgl.Marker({element:el})
       .setLngLat([loc.lng,loc.lat])
       .setPopup(makePopup(loc,cat))
       .addTo(map);
