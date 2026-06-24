@@ -8,6 +8,7 @@
     "attractions":{ "label": "Attractions",     "color": "#5B8DB8", "icon": "landmark" },
     "food":       { "label": "Food & Drink",    "color": "#7BA67B", "icon": "utensils" },
     "nightlife":  { "label": "Nightlife",       "color": "#8B7BAB", "icon": "music" },
+    "stadiums":   { "label": "Stadiums",        "color": "#5B9E8E", "icon": "trophy" },
     "transit":    { "label": "Transit",         "color": "#9E8E6B", "icon": "train" },
     "zones":      { "label": "Zones",           "color": "#7B9E6B", "icon": "map" }
   },
@@ -65,11 +66,11 @@
     { "name": "Smoke & Mirrors", "cat": "nightlife", "lat": 41.9192, "lng": -87.6873, "star": false, "note": "Logan Square club. Fri/Sat 10pm-4/5am.", "address": "2045 N Milwaukee Ave" },
     { "name": "Radius Chicago", "cat": "nightlife", "lat": 41.8530, "lng": -87.6370, "star": false, "note": "Large live-music and DJ venue near Chinatown, by the Cermak-Chinatown stop.", "address": "640 W Cermak Rd" },
 
-    { "name": "Soldier Field", "cat": "attractions", "lat": 41.8623, "lng": -87.6167, "star": false, "note": "Chicago Bears and major concerts. Next to the Field Museum and Shedd.", "address": "1410 S Museum Campus Dr" },
-    { "name": "Wrigley Field", "cat": "attractions", "lat": 41.9484, "lng": -87.6553, "star": false, "note": "Iconic 1914 Cubs ballpark. The Wrigleyville bar scene around it is worth it even without a game.", "address": "1060 W Addison St" },
-    { "name": "Guaranteed Rate Field", "cat": "attractions", "lat": 41.8299, "lng": -87.6338, "star": false, "note": "Chicago White Sox. Red Line to Sox/35th. Near Chinatown.", "address": "333 W 35th St" },
-    { "name": "United Center", "cat": "attractions", "lat": 41.8807, "lng": -87.6742, "star": false, "note": "Bulls and Blackhawks, plus major concerts. ~2.5mi west.", "address": "1901 W Madison St" },
-    { "name": "Wintrust Arena", "cat": "attractions", "lat": 41.8530, "lng": -87.6270, "star": false, "note": "Smaller arena — DePaul basketball and concerts. Near Chinatown/South Loop.", "address": "200 E Cermak Rd" },
+    { "name": "Soldier Field", "cat": "stadiums", "lat": 41.8623, "lng": -87.6167, "star": false, "note": "Chicago Bears and major concerts. Next to the Field Museum and Shedd.", "address": "1410 S Museum Campus Dr" },
+    { "name": "Wrigley Field", "cat": "stadiums", "lat": 41.9484, "lng": -87.6553, "star": false, "note": "Iconic 1914 Cubs ballpark. The Wrigleyville bar scene around it is worth it even without a game.", "address": "1060 W Addison St" },
+    { "name": "Guaranteed Rate Field", "cat": "stadiums", "lat": 41.8299, "lng": -87.6338, "star": false, "note": "Chicago White Sox. Red Line to Sox/35th. Near Chinatown.", "address": "333 W 35th St" },
+    { "name": "United Center", "cat": "stadiums", "lat": 41.8807, "lng": -87.6742, "star": false, "note": "Bulls and Blackhawks, plus major concerts. ~2.5mi west.", "address": "1901 W Madison St" },
+    { "name": "Wintrust Arena", "cat": "stadiums", "lat": 41.8530, "lng": -87.6270, "star": false, "note": "Smaller arena — DePaul basketball and concerts. Near Chinatown/South Loop.", "address": "200 E Cermak Rd" },
 
     { "name": "Green Mill Cocktail Lounge", "cat": "food", "lat": 41.9692, "lng": -87.6599, "star": false, "note": "1920s gangster site. Capone's favorite booth still there. Live jazz nightly. Uptown, ~5.5mi north.", "address": "4802 N Broadway" },
     { "name": "Green Door Tavern", "cat": "food", "lat": 41.8946, "lng": -87.6374, "star": false, "note": "1920s gangster site. Original Prohibition speakeasy with a basement bar (The Drifter). Steps from home base.", "address": "678 N Orleans St" },
