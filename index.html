@@ -218,6 +218,8 @@ function initMap(){
     style: styleFor(false),
     center:[DATA.config.homebase.lng, DATA.config.homebase.lat],
     zoom:12.2,
+    minZoom:10.5,
+    maxBounds:[[-87.940, 41.644], [-87.524, 42.023]],
     attributionControl:false
   });
   map.addControl(new mapboxgl.AttributionControl({compact:true}));
