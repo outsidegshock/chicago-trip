@@ -33,7 +33,6 @@
     { "name": "Magnificent Mile", "cat": "zones", "lat": 41.8945, "lng": -87.6244, "star": false, "note": "Michigan Ave shopping corridor — flagship stores, hotels, restaurants.", "address": "N Michigan Ave" },
     { "name": "Shedd Aquarium", "cat": "attractions", "lat": 41.8676, "lng": -87.6140, "star": false, "note": "On the Museum Campus next to the Field Museum. ~$50. Book ahead in summer.", "address": "1200 S DuSable Lake Shore Dr" },
     { "name": "University of Chicago", "cat": "attractions", "lat": 41.7886, "lng": -87.5987, "star": false, "note": "Gothic campus on the South Side, near the Obama Center. Good for a walk-around.", "address": "5801 S Ellis Ave" },
-    { "name": "Donda's House (Kanye childhood home)", "cat": "attractions", "lat": 41.7624, "lng": -87.6090, "star": false, "note": "Exterior only — private residence on the South Side. A fan photo stop, ~8mi from home base.", "address": "7815 S South Shore Dr" },
     { "name": "North Avenue Beach", "cat": "attractions", "lat": 41.9111, "lng": -87.6270, "star": false, "note": "Lakefront beach with a boathouse bar. Volleyball, skyline views.", "address": "1601 N Lake Shore Dr" },
     { "name": "Wicker Park", "cat": "zones", "lat": 41.9088, "lng": -87.6776, "star": false, "note": "Hip neighborhood — vintage shops, bars, music venues, cafes.", "address": "Wicker Park" },
     { "name": "Garfield Park Conservatory", "cat": "attractions", "lat": 41.8862, "lng": -87.7172, "star": false, "note": "One of the largest conservatories in the US. 4.8 stars. ~$10 for visitors.", "address": "300 N Central Park Ave" },
@@ -84,7 +83,6 @@
     { "name": "Holy Name Cathedral", "cat": "gangster", "lat": 41.8964, "lng": -87.6285, "star": false, "note": "1920s gangster site. 1926 bullet holes from the Hymie Weiss hit once visible outside. One block from home base.", "address": "735 N State St" },
     { "name": "Chicago Gangsters & Ghosts Tour", "cat": "gangster", "lat": 41.8874, "lng": -87.6257, "star": false, "note": "4.9-star walking tour covering the major mob sites. A good one-stop overview.", "address": "71 E Wacker Dr" },
     { "name": "Biograph Theater", "cat": "gangster", "lat": 41.9263, "lng": -87.6498, "star": false, "note": "1920s/30s gangster site. John Dillinger was shot by FBI agents in the alley here in 1934. Mural marks the spot.", "address": "2433 N Lincoln Ave" },
-    { "name": "Al Capone's Chicago Manor", "cat": "gangster", "lat": 41.7625, "lng": -87.6188, "star": false, "note": "1920s gangster site. Capone's actual family home — exterior only, sealed escape tunnels. ~8mi south.", "address": "7244 S Prairie Ave" },
     { "name": "Chicago Crime Tours", "cat": "gangster", "lat": 41.8975, "lng": -87.6236, "star": false, "note": "4.8-star bus tour of gangster sites. 2 blocks from home base.", "address": "163 E Pearson St" },
 
     { "name": "Cermak-Chinatown CTA", "cat": "transit", "lat": 41.8530, "lng": -87.6306, "star": false, "note": "Red Line stop — the direct shot south to Chinatown from downtown.", "address": "Cermak-Chinatown Station" },
